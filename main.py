@@ -1,5 +1,7 @@
 # 修改后的12306余票查询程序，支持【多车次】、【多席位】追踪并保存为Excel
 import json
+import os
+import random
 import time
 from datetime import datetime
 
@@ -214,6 +216,11 @@ def renewMainingTickets():
 def deal():
     """(修改) 将历史数据转换为Excel"""
     
+    # (修改) 创建保存Excel文件的文件夹
+    output_folder = "ticket_history_excel"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
     # (修改) 构建列名：时间 + 车次 + 选中的所有席位名称
     columns = ["时间", "车次"] + list(selected_seats.values())
     
@@ -221,8 +228,10 @@ def deal():
     
     # (修改) 命名 Excel 文件，不再包含具体车次号
     filename = f"{from_city}_to_{to_city}_{data}_multi_train_history.xlsx"
-    df.to_excel(filename, index=False)
-    print(f"\nExcel文件已保存到: {filename}")
+    # (修改) 完整文件路径，包含输出文件夹
+    full_path = os.path.join(output_folder, filename)
+    df.to_excel(full_path, index=False)
+    print(f"\nExcel文件已保存到: {full_path}")
 
 # --- 主程序执行部分 ---
 
@@ -249,7 +258,7 @@ try:
         renewMainingTickets()
         
         if k < circulate:
-            time.sleep(60)
+            time.sleep(random.randint(55, 65))
 
 except KeyboardInterrupt:
     print("\n[用户操作] 检测到 Ctrl+C，程序已中断。")
